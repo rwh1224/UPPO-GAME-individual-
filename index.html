@@ -34,7 +34,10 @@
 
 <!-- 닉네임 입력 -->
 <div id="nickScreen" class="screen">
-  <h1>업무포털 신학기 모임에 오신걸 환영합니다 <br> 자신의 닉네임을 입력하세요</h1>
+  <h1>
+    업무포털 신학기 모임에 오신걸 환영합니다<br>
+    자신의 닉네임을 입력하세요
+  </h1>
   <input type="text" id="nickInput" placeholder="닉네임">
   <br>
   <button onclick="sendNickname()">확인</button>
@@ -70,6 +73,7 @@ function showScreen(id) {
 function sendNickname() {
   const nickname = document.getElementById("nickInput").value.trim();
   const error = document.getElementById("nickError");
+  error.textContent = "";
 
   if (!nickname) {
     error.textContent = "닉네임을 입력하세요.";
@@ -78,33 +82,28 @@ function sendNickname() {
 
   fetch(scriptURL, {
     method: "POST",
-    body: JSON.stringify({ nickname }),
-    headers: { "Content-Type": "application/json" }
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ nickname: nickname })
   })
-  .then(res => res.json())
+  .then(response => response.json())
   .then(data => {
     if (data.success) {
       document.getElementById("roleResult").innerText = data.role;
       showScreen("roleScreen");
 
-      // 2초 후 자동 이동
+      // 2초 후 투표 화면 이동
       setTimeout(() => {
         showScreen("voteScreen");
       }, 2000);
 
     } else {
-      error.textContent = data.message;
+      error.textContent = data.error || "서버 오류";
     }
   })
-  .catch(() => {
+  .catch(err => {
+    console.error(err);
     error.textContent = "서버 연결 오류";
   });
 }
 
-window.onload = () => {
-  showScreen("nickScreen");
-};
-</script>
-
-</body>
-</html>
+win
