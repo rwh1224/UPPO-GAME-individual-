@@ -37,8 +37,10 @@
 
   <!-- 1단계: 닉네임 입력 -->
   <div id="codeScreen" class="screen">
-    <h1>업무포털 신학기 기념 모임에 오신걸 환영합니다.<br>
-       닉네임을 입력하세요</h1>
+    <h1>
+      업무포털 신학기 기념 모임에 오신걸 환영합니다.<br>
+      닉네임을 입력하세요
+    </h1>
     <input type="text" id="nicknameInput" placeholder="닉네임 입력">
     <br>
     <button onclick="submitNickname()">입장하기</button>
@@ -55,12 +57,15 @@
   <!-- 3단계: 구글폼 투표 -->
   <div id="voteScreen" class="screen">
     <h1>투표를 진행하려면 아래 버튼을 클릭하세요</h1>
-    <a class="link-button" href="https://docs.google.com/forms/d/e/1FAIpQLSdaFacNEOpuVPWfyrxA3iOkgQOyZD30tl7qNWT2AfylKkA4Sw/viewform?usp=header" target="_blank">
+    <a class="link-button"
+       href="https://docs.google.com/forms/d/e/1FAIpQLSdaFacNEOpuVPWfyrxA3iOkgQOyZD30tl7qNWT2AfylKkA4Sw/viewform?usp=header"
+       target="_blank">
       구글폼으로 투표하기
     </a>
   </div>
 
   <script>
+    // 네가 준 Apps Script URL
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyiqFeTc69boECIosGMG5oWivPDxGCwcELI92D7WGPGSCPIOlt7mVifyulWwxLr0roj/exec";
 
     function showScreen(id) {
@@ -81,19 +86,20 @@
 
       fetch(SCRIPT_URL, {
         method: "POST",
-        body: JSON.stringify({ nickname: nickname }),
-        headers: { "Content-Type": "application/json" }
+        body: new URLSearchParams({ nickname: nickname })
       })
       .then(res => res.json())
       .then(data => {
         if (data.status === "duplicate") {
           error.textContent = "이미 사용된 닉네임입니다.";
-        } else {
+        } else if (data.status === "ok") {
           document.getElementById("roleResult").innerHTML =
             `닉네임: ${nickname}<br>
              순서: ${data.order}번<br>
              상태: ${data.role}`;
           showScreen("roleScreen");
+        } else {
+          error.textContent = "서버 오류가 발생했습니다.";
         }
       })
       .catch(() => {
