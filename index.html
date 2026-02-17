@@ -7,7 +7,7 @@
     body {
       font-family: sans-serif;
       text-align: center;
-      margin-top: 80px;
+      margin-top: 60px;
     }
     input, button {
       font-size: 18px;
@@ -17,7 +17,6 @@
     .screen {
       display: none;
     }
-    /* 링크 버튼 스타일 */
     .link-button {
       display: inline-block;
       background-color: #4CAF50;
@@ -55,15 +54,14 @@
   <!-- 3단계: 구글폼 투표 -->
   <div id="voteScreen" class="screen">
     <h1>투표를 진행하려면 아래 버튼을 클릭하세요</h1>
-    <a class="link-button" href="https://docs.google.com/forms/d/e/1FAIpQLSdaFacNEOpuVPWfyrxA3iOkgQOyZD30tl7qNWT2AfylKkA4Sw/viewform?usp=header" target="_blank">
+    <a class="link-button" href="https://docs.google.com/forms/d/e/구글폼_ID/viewform" target="_blank">
       구글폼으로 투표하기
     </a>
   </div>
 
   <script>
-    // 코드별 닉네임과 역할
+    // 전체 48명 코드 + 진짜/가짜
     const codeTable = {
-       const codeTable = {
       "B001": { nickname: "건호", role: "진짜" },
       "B002": { nickname: "곰규", role: "가짜" },
       "B003": { nickname: "기결취소", role: "진짜" },
@@ -100,7 +98,7 @@
       "B034": { nickname: "전부기", role: "진짜" },
       "B035": { nickname: "제이크", role: "진짜" },
       "B036": { nickname: "조지", role: "진짜" },
-      "B037": { nickname: "지홍", role: "가짜(취미: 일요일마다 조기축구회 나가서 공차기" },
+      "B037": { nickname: "지홍", role: "진짜" },
       "B038": { nickname: "철수", role: "진짜" },
       "B039": { nickname: "카멜레온", role: "진짜" },
       "B040": { nickname: "쿤", role: "진짜" },
@@ -114,6 +112,11 @@
       "B048": { nickname: "후티", role: "진짜" }
     };
 
+    const hobbies = [
+      "사진 찍기", "요리 배우기", "수채화 그리기", "책 읽기", 
+      "걷기", "영화 감상", "게임 만들기", "악기 배우기"
+    ];
+
     let currentUser = null;
 
     // 화면 전환
@@ -124,27 +127,35 @@
       document.getElementById(id).style.display = "block";
     }
 
-    // 1단계: 코드 체크
     function checkCode() {
       const code = document.getElementById("codeInput").value.trim();
       const error = document.getElementById("codeError");
 
       if (codeTable[code]) {
         currentUser = codeTable[code];
-        document.getElementById("roleResult").innerHTML =
-          `닉네임: ${currentUser.nickname}<br>역할: ${currentUser.role}`;
-        showScreen("roleScreen");
+        showRole();
       } else {
         error.textContent = "유효하지 않은 코드입니다.";
       }
     }
 
-    // 2단계: 투표화면으로 이동
+    function showRole() {
+      if (!currentUser) return;
+      let hobbySuggestion = "";
+      if (currentUser.role === "가짜") {
+        const hobby = hobbies[Math.floor(Math.random() * hobbies.length)];
+        hobbySuggestion = `<br>추천 취미: ${hobby}`;
+      }
+      document.getElementById("roleResult").innerHTML =
+        `닉네임: ${currentUser.nickname}<br>
+         상태: ${currentUser.role}${hobbySuggestion}`;
+      showScreen("roleScreen");
+    }
+
     function goToVote() {
       showScreen("voteScreen");
     }
 
-    // 시작 시 1단계 화면 표시
     window.onload = () => {
       showScreen("codeScreen");
     };
