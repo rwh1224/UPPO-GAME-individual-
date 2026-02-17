@@ -102,7 +102,7 @@ window.onload = function() {
 };
 
 function checkRole() {
-    const code = document.getElementById("code").value;
+    const code = document.getElementById("code").value.trim();
     const result = document.getElementById("result");
 
     const player = players.find(p => p.code === code);
@@ -123,6 +123,7 @@ function checkRole() {
     }
 
     document.getElementById("voteSection").classList.remove("hidden");
+
 }
 
 function submitVote() {
