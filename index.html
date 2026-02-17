@@ -35,13 +35,13 @@
 </head>
 <body>
 
-  <!-- 1단계: 코드 입력 -->
+  <!-- 1단계: 닉네임 입력 -->
   <div id="codeScreen" class="screen">
-    <h1> 업무포털 신학기 기념 모임에 오신걸 환영합니다. <br>
-       배부한 보안 코드를 입력하세요</h1>
-    <input type="text" id="codeInput" placeholder="코드 입력">
+    <h1>업무포털 신학기 기념 모임에 오신걸 환영합니다.<br>
+       닉네임을 입력하세요</h1>
+    <input type="text" id="nicknameInput" placeholder="닉네임 입력">
     <br>
-    <button onclick="checkCode()">확인</button>
+    <button onclick="submitNickname()">입장하기</button>
     <div id="codeError" style="color:red;"></div>
   </div>
 
@@ -49,7 +49,7 @@
   <div id="roleScreen" class="screen">
     <h1>당신의 정보</h1>
     <div id="roleResult" style="font-size:22px; margin:20px;"></div>
-    <button onclick="goToVote()">확인했습니다</button>
+    <button onclick="goToVote()">투표하러 가기</button>
   </div>
 
   <!-- 3단계: 구글폼 투표 -->
@@ -61,66 +61,8 @@
   </div>
 
   <script>
-    // 전체 48명 코드 + 진짜/가짜
-    const codeTable = {
-      "B001": { nickname: "건호", role: "진짜" },
-      "B002": { nickname: "곰규", role: "가짜" },
-      "B003": { nickname: "기결취소", role: "진짜" },
-      "B004": { nickname: "냉동귤", role: "가짜" },
-      "B005": { nickname: "니후", role: "진짜" },
-      "B006": { nickname: "도비", role: "진짜" },
-      "B007": { nickname: "동남이", role: "진짜" },
-      "B008": { nickname: "동티", role: "진짜" },
-      "B009": { nickname: "두룸이", role: "진짜" },
-      "B010": { nickname: "레이", role: "진짜" },
-      "B011": { nickname: "렬", role: "진짜" },
-      "B012": { nickname: "로이", role: "진짜" },
-      "B013": { nickname: "릭스", role: "진짜" },
-      "B014": { nickname: "마겸", role: "진짜" },
-      "B015": { nickname: "무우", role: "진짜" },
-      "B016": { nickname: "민쓰", role: "진짜" },
-      "B017": { nickname: "빡찐", role: "진짜" },
-      "B018": { nickname: "세라비", role: "진짜" },
-      "B019": { nickname: "솔빵", role: "진짜" },
-      "B020": { nickname: "술찌", role: "진짜" },
-      "B021": { nickname: "아이오", role: "진짜" },
-      "B022": { nickname: "에단", role: "진짜" },
-      "B023": { nickname: "연하늘", role: "진짜" },
-      "B024": { nickname: "용용", role: "진짜" },
-      "B025": { nickname: "우영우", role: "진짜" },
-      "B026": { nickname: "우재", role: "진짜" },
-      "B027": { nickname: "유성", role: "진짜" },
-      "B028": { nickname: "율", role: "진짜" },
-      "B029": { nickname: "융이", role: "진짜" },
-      "B030": { nickname: "은총", role: "진짜" },
-      "B031": { nickname: "일반남자", role: "진짜" },
-      "B032": { nickname: "임투더장?", role: "진짜" },
-      "B033": { nickname: "재휴", role: "진짜" },
-      "B034": { nickname: "전부기", role: "진짜" },
-      "B035": { nickname: "제이크", role: "진짜" },
-      "B036": { nickname: "조지", role: "진짜" },
-      "B037": { nickname: "지홍", role: "가짜 <br> (취미: 조기축구회 모임나가서 축구활동하기" },
-      "B038": { nickname: "철수", role: "진짜" },
-      "B039": { nickname: "카멜레온", role: "진짜" },
-      "B040": { nickname: "쿤", role: "진짜" },
-      "B041": { nickname: "타이거", role: "진짜" },
-      "B042": { nickname: "태태", role: "진짜" },
-      "B043": { nickname: "토레타", role: "진짜" },
-      "B044": { nickname: "파이", role: "진짜" },
-      "B045": { nickname: "프로도", role: "진짜" },
-      "B046": { nickname: "행", role: "진짜" },
-      "B047": { nickname: "환", role: "진짜" },
-      "B048": { nickname: "후티", role: "진짜" }
-    };
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyiqFeTc69boECIosGMG5oWivPDxGCwcELI92D7WGPGSCPIOlt7mVifyulWwxLr0roj/exec";
 
-    const hobbies = [
-      "사진 찍기", "요리 배우기", "수채화 그리기", "책 읽기", 
-      "걷기", "영화 감상", "게임 만들기", "악기 배우기"
-    ];
-
-    let currentUser = null;
-
-    // 화면 전환
     function showScreen(id) {
       document.getElementById("codeScreen").style.display = "none";
       document.getElementById("roleScreen").style.display = "none";
@@ -128,29 +70,35 @@
       document.getElementById(id).style.display = "block";
     }
 
-    function checkCode() {
-      const code = document.getElementById("codeInput").value.trim();
+    function submitNickname() {
+      const nickname = document.getElementById("nicknameInput").value.trim();
       const error = document.getElementById("codeError");
 
-      if (codeTable[code]) {
-        currentUser = codeTable[code];
-        showRole();
-      } else {
-        error.textContent = "유효하지 않은 코드입니다.";
+      if (!nickname) {
+        error.textContent = "닉네임을 입력하세요.";
+        return;
       }
-    }
 
-    function showRole() {
-      if (!currentUser) return;
-      let hobbySuggestion = "";
-      if (currentUser.role === "가짜") {
-        const hobby = hobbies[Math.floor(Math.random() * hobbies.length)];
-        hobbySuggestion = `<br>추천 취미: ${hobby}`;
-      }
-      document.getElementById("roleResult").innerHTML =
-        `닉네임: ${currentUser.nickname}<br>
-         상태: ${currentUser.role}${hobbySuggestion}`;
-      showScreen("roleScreen");
+      fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify({ nickname: nickname }),
+        headers: { "Content-Type": "application/json" }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === "duplicate") {
+          error.textContent = "이미 사용된 닉네임입니다.";
+        } else {
+          document.getElementById("roleResult").innerHTML =
+            `닉네임: ${nickname}<br>
+             순서: ${data.order}번<br>
+             상태: ${data.role}`;
+          showScreen("roleScreen");
+        }
+      })
+      .catch(() => {
+        error.textContent = "서버 연결 오류";
+      });
     }
 
     function goToVote() {
