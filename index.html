@@ -1,121 +1,82 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>UPPO GAME</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      margin-top: 60px;
-    }
-    input, button {
-      font-size: 18px;
-      padding: 10px;
-      margin: 10px;
-    }
-    .screen {
-      display: none;
-    }
-    .link-button {
-      display: inline-block;
-      background-color: #4CAF50;
-      color: white;
-      font-size: 20px;
-      padding: 12px 24px;
-      border-radius: 5px;
-      text-decoration: none;
-      margin-top: 20px;
-      cursor: pointer;
-    }
-    .link-button:hover {
-      background-color: #45a049;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>UPPO GAME</title>
+<style>
+body {
+  font-family: sans-serif;
+  text-align: center;
+  padding-top: 80px;
+}
+input, button {
+  font-size: 18px;
+  padding: 10px;
+  margin: 10px;
+}
+#result {
+  font-size: 28px;
+  margin-top: 30px;
+  font-weight: bold;
+}
+#formLink {
+  display: none;
+  margin-top: 40px;
+}
+</style>
 </head>
 <body>
 
-  <!-- 1단계: 닉네임 입력 -->
-  <div id="codeScreen" class="screen">
-    <h1>
-      업무포털 신학기 기념 모임에 오신걸 환영합니다.<br>
-      닉네임을 입력하세요
-    </h1>
-    <input type="text" id="nicknameInput" placeholder="닉네임 입력">
-    <br>
-    <button onclick="submitNickname()">입장하기</button>
-    <div id="codeError" style="color:red;"></div>
-  </div>
+<h2 id="title">닉네임을 입력하세요</h2>
+<input id="nickname" placeholder="닉네임">
+<br>
+<button onclick="joinGame()">입장</button>
 
-  <!-- 2단계: 역할 확인 -->
-  <div id="roleScreen" class="screen">
-    <h1>당신의 정보</h1>
-    <div id="roleResult" style="font-size:22px; margin:20px;"></div>
-    <button onclick="goToVote()">투표하러 가기</button>
-  </div>
+<div id="result"></div>
 
-  <!-- 3단계: 구글폼 투표 -->
-  <div id="voteScreen" class="screen">
-    <h1>투표를 진행하려면 아래 버튼을 클릭하세요</h1>
-    <a class="link-button"
-       href="https://docs.google.com/forms/d/e/1FAIpQLSdaFacNEOpuVPWfyrxA3iOkgQOyZD30tl7qNWT2AfylKkA4Sw/viewform?usp=header"
-       target="_blank">
-      구글폼으로 투표하기
-    </a>
-  </div>
+<div id="formLink">
+  <h3>이제 투표에 참여하세요</h3>
+  <a href="https://docs.google.com/forms/d/e/1FAIpQLSdaFacNEOpuVPWfyrxA3iOkgQOyZD30tl7qNWT2AfylKkA4Sw/viewform?usp=header" target="_blank">
+    <button>구글폼 투표하기</button>
+  </a>
+</div>
 
-  <script>
-    // 네 Apps Script URL
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbycCnZFURrQE-iZ4zfP0-skWlwM5XuMQWFAYf--7iwcC8CVCM9ivpfq46-oYxuW4JHY/exec";
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz6y6ktls-vLXst-XJWiJjE9pUukYLxRZvbF0moakh6Kwzp0TuyMcG_lvaa-2uiOiyX/exec";
 
-    function showScreen(id) {
-      document.getElementById("codeScreen").style.display = "none";
-      document.getElementById("roleScreen").style.display = "none";
-      document.getElementById("voteScreen").style.display = "none";
-      document.getElementById(id).style.display = "block";
-    }
+function joinGame() {
+  const nickname = document.getElementById("nickname").value.trim();
+  if (!nickname) {
+    alert("닉네임을 입력하세요.");
+    return;
+  }
 
-    function submitNickname() {
-      const nickname = document.getElementById("nicknameInput").value.trim();
-      const error = document.getElementById("codeError");
-
-      error.textContent = "";
-
-      if (!nickname) {
-        error.textContent = "닉네임을 입력하세요.";
-        return;
+  fetch(SCRIPT_URL, {
+    method: "POST",
+    body: JSON.stringify({ nickname: nickname })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.error) {
+      document.getElementById("result").innerText = data.error;
+    } else {
+      if (data.role === "가짜") {
+        document.getElementById("result").innerHTML =
+          "당신은 <span style='color:red'>가짜</span>입니다.<br><br>새로운 취미로 사람들을 속이세요.";
+      } else {
+        document.getElementById("result").innerHTML =
+          "당신은 <span style='color:blue'>진짜</span>입니다.";
       }
 
-      fetch(SCRIPT_URL, {
-        method: "POST",
-        body: new URLSearchParams({ nickname: nickname })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === "ok") {
-          document.getElementById("roleResult").innerHTML =
-            `닉네임: ${nickname}<br>
-             상태: ${data.role}`;
-          showScreen("roleScreen");
-        } else if (data.status === "notfound") {
-          error.textContent = "등록되지 않은 닉네임입니다.";
-        } else {
-          error.textContent = "서버 오류가 발생했습니다.";
-        }
-      })
-      .catch(() => {
-        error.textContent = "서버 연결 오류";
-      });
+      // 구글폼 표시
+      document.getElementById("formLink").style.display = "block";
     }
-
-    function goToVote() {
-      showScreen("voteScreen");
-    }
-
-    window.onload = () => {
-      showScreen("codeScreen");
-    };
-  </script>
+  })
+  .catch(() => {
+    document.getElementById("result").innerText = "서버 연결 오류";
+  });
+}
+</script>
 
 </body>
 </html>
