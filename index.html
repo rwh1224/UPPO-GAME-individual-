@@ -20,7 +20,7 @@ body {
     margin: auto;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
-input, select, button {
+input, button {
     padding: 10px;
     margin: 8px;
     width: 80%;
@@ -40,41 +40,48 @@ input, select, button {
 .real {
     color: green;
 }
+.vote-list {
+    text-align: left;
+    margin: 20px auto;
+    width: 80%;
+}
+.vote-list label {
+    display: block;
+    margin: 5px 0;
+    font-size: 18px;
+}
 </style>
 </head>
 
 <body>
 
 <div class="card">
-    <h2>진짜를 찾아라</h2>
 
-    <input id="code" placeholder="보안코드 입력" type="password">
-    <br>
-    <button onclick="checkRole()">역할 확인</button>
+    <!-- 1단계: 코드 입력 -->
+    <div id="codeSection">
+        <h2>진짜를 찾아라</h2>
+        <input id="code" placeholder="보안코드 입력" type="password">
+        <br>
+        <button onclick="checkRole()">역할 확인</button>
+    </div>
 
-    <div id="result" class="result"></div>
+    <!-- 2단계: 결과 화면 -->
+    <div id="resultSection" class="hidden">
+        <div id="result" class="result"></div>
+        <button onclick="showVote()">투표 시작</button>
+    </div>
 
+    <!-- 3단계: 투표 화면 -->
     <div id="voteSection" class="hidden">
         <h3>가짜라고 생각하는 사람 선택</h3>
-
-        <select id="vote1"></select>
-        <select id="vote2"></select>
-        <select id="vote3"></select>
-        <select id="vote4"></select>
-        <select id="vote5"></select>
-        <select id="vote6"></select>
-        <select id="vote7"></select>
-        <select id="vote8"></select>
-        <select id="vote9"></select>
-        <select id="vote10"></select>
-
-        <br>
+        <div id="voteList" class="vote-list"></div>
         <button onclick="submitVote()">투표 완료</button>
     </div>
+
 </div>
 
 <script>
-// 참가자 데이터 (여기만 수정)
+// 참가자 데이터
 const players = [
     {name:"민수", code:"1001", role:"real"},
     {name:"지훈", code:"1002", role:"fake", hobby:"낚시"},
@@ -88,19 +95,6 @@ const players = [
     {name:"도윤", code:"1010", role:"real"}
 ];
 
-// 콤보박스 채우기
-window.onload = function() {
-    const selects = document.querySelectorAll("select");
-    players.forEach(p => {
-        selects.forEach(sel => {
-            let opt = document.createElement("option");
-            opt.value = p.name;
-            opt.textContent = p.name;
-            sel.appendChild(opt);
-        });
-    });
-};
-
 function checkRole() {
     const code = document.getElementById("code").value.trim();
     const result = document.getElementById("result");
@@ -108,8 +102,7 @@ function checkRole() {
     const player = players.find(p => p.code === code);
 
     if (!player) {
-        result.textContent = "코드가 올바르지 않습니다.";
-        result.className = "result";
+        alert("코드가 올바르지 않습니다.");
         return;
     }
 
@@ -122,11 +115,39 @@ function checkRole() {
         result.className = "result fake";
     }
 
+    // 화면 전환
+    document.getElementById("codeSection").classList.add("hidden");
+    document.getElementById("resultSection").classList.remove("hidden");
+}
+
+function showVote() {
+    const voteList = document.getElementById("voteList");
+    voteList.innerHTML = "";
+
+    players.forEach(p => {
+        const label = document.createElement("label");
+        const checkbox = document.createElement("input");
+
+        checkbox.type = "checkbox";
+        checkbox.value = p.name;
+
+        label.appendChild(checkbox);
+        label.append(" " + p.name);
+
+        voteList.appendChild(label);
+    });
+
+    document.getElementById("resultSection").classList.add("hidden");
     document.getElementById("voteSection").classList.remove("hidden");
 }
 
 function submitVote() {
-    alert("투표가 완료되었습니다!");
+    const checked = document.querySelectorAll("#voteList input:checked");
+    let selected = [];
+
+    checked.forEach(c => selected.push(c.value));
+
+    alert("투표 완료: " + selected.join(", "));
 }
 </script>
 
