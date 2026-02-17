@@ -2,108 +2,90 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>UPPO GAME</title>
   <style>
     body {
-      font-family: sans-serif;
+      font-family: 'Malgun Gothic', sans-serif;
       text-align: center;
       margin-top: 60px;
+      background-color: #f4f7f6;
     }
     input, button {
       font-size: 18px;
-      padding: 10px;
+      padding: 12px;
       margin: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
     }
-    .screen {
-      display: none;
+    button {
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+      border: none;
+      transition: 0.3s;
+    }
+    button:hover { background-color: #0056b3; }
+    
+    /* 화면 전환 설정 */
+    .screen { display: none; padding: 20px; }
+    #nickScreen { display: block; } /* 첫 화면만 보이게 설정 */
+
+    .role-text {
+      font-size: 40px;
+      font-weight: bold;
+      color: #e91e63;
+      margin: 30px 0;
     }
     .link-button {
       display: inline-block;
       background-color: #4CAF50;
       color: white;
       font-size: 20px;
-      padding: 12px 24px;
+      padding: 15px 30px;
       border-radius: 5px;
       text-decoration: none;
       margin-top: 20px;
-      cursor: pointer;
     }
+    #nickError { color: red; font-weight: bold; margin-top: 10px; }
   </style>
 </head>
 <body>
 
-<!-- 닉네임 입력 -->
 <div id="nickScreen" class="screen">
-  <h1>
-    업무포털 신학기 모임에 오신걸 환영합니다<br>
-    자신의 닉네임을 입력하세요
-  </h1>
-  <input type="text" id="nickInput" placeholder="닉네임">
+  <h1>업무포털 신학기 모임에 오신걸 환영합니다.<br>닉네임을 입력하세요</h1>
+  <input type="text" id="nickInput" placeholder="닉네임 입력">
   <br>
-  <button onclick="sendNickname()">확인</button>
-  <div id="nickError" style="color:red;"></div>
+  <button id="submitBtn" onclick="sendNickname()">확인</button>
+  <div id="nickError"></div>
 </div>
 
-<!-- 역할 확인 -->
 <div id="roleScreen" class="screen">
-  <h1>당신의 역할</h1>
-  <div id="roleResult" style="font-size:26px; margin:20px;"></div>
+  <h1>당신의 역할은?</h1>
+  <div id="roleResult" class="role-text"></div>
+  <p>3초 후 투표 페이지로 이동합니다...</p>
 </div>
 
-<!-- 투표 -->
 <div id="voteScreen" class="screen">
   <h1>투표를 진행하세요</h1>
-  <a class="link-button"
-     href="https://docs.google.com/forms/d/e/1FAIpQLSdaFacNEOpuVPWfyrxA3iOkgQOyZD30tl7qNWT2AfylKkA4Sw/viewform"
+  <p>아래 버튼을 눌러 구글 폼으로 이동하세요.</p>
+  <a class="link-button" 
+     href="https://docs.google.com/forms/d/e/1FAIpQLSdaFacNEOpuVPWfyrxA3iOkgQOyZD30tl7qNWT2AfylKkA4Sw/viewform" 
      target="_blank">
      구글폼으로 이동
   </a>
 </div>
 
 <script>
-const scriptURL = "https://script.google.com/macros/s/AKfycbwzej2OTBNcIKB7L5WyJ_SPaVslETgCkgVzvinO8JCBLkI_rYBItrIf2z3EbhNCf00/exec";
+  // 사용자님의 앱스크립트 배포 URL (새로 배포 후 교체 권장)
+  const scriptURL = "https://script.google.com/macros/s/AKfycbxsqrir7Jc4iW9Tkto3z8Y4Smlxyi0WHpzipVrCJ7zgQUdv5vk8kRZ7XpnOy6khWuT4/exec";
 
-function showScreen(id) {
-  document.getElementById("nickScreen").style.display = "none";
-  document.getElementById("roleScreen").style.display = "none";
-  document.getElementById("voteScreen").style.display = "none";
-  document.getElementById(id).style.display = "block";
-}
-
-function sendNickname() {
-  const nickname = document.getElementById("nickInput").value.trim();
-  const error = document.getElementById("nickError");
-  error.textContent = "";
-
-  if (!nickname) {
-    error.textContent = "닉네임을 입력하세요.";
-    return;
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
+    document.getElementById(id).style.display = "block";
   }
 
-  fetch(scriptURL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ nickname: nickname })
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      document.getElementById("roleResult").innerText = data.role;
-      showScreen("roleScreen");
-
-      // 2초 후 투표 화면 이동
-      setTimeout(() => {
-        showScreen("voteScreen");
-      }, 2000);
-
-    } else {
-      error.textContent = data.error || "서버 오류";
-    }
-  })
-  .catch(err => {
-    console.error(err);
-    error.textContent = "서버 연결 오류";
-  });
-}
-
-win
+  function sendNickname() {
+    const nickname = document.getElementById("nickInput").value.trim();
+    const btn = document.getElementById("submitBtn");
+    const error = document.getElementById("nickError");
