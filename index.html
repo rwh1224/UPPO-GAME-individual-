@@ -29,12 +29,22 @@
 </head>
 <body>
 
-<div id="nickScreen" class="screen">
-  <h1>업무포털 신학기 모임<br>닉네임을 입력하세요</h1>
-  <input type="text" id="nickInput" placeholder="닉네임 입력">
-  <br>
-  <button id="submitBtn" onclick="sendNickname()">확인</button>
-  <div id="nickError"></div>
+<div id="start-screen" style="text-align: center; padding: 20px;">
+    <h1>업무포털 신학기모임</h1>
+    
+    <div id="game-rules" style="text-align: left; background: #f4f4f4; padding: 20px; border-radius: 10px; margin: 20px auto; max-width: 500px; line-height: 1.6; border: 1px solid #ccc;">
+        <h3 style="margin-top: 0;">&lt;게임 규칙&gt;</h3>
+        <p>1. 이 게임은 주변의 사람들의 취미를 묻는 게임입니다.</p>
+        <p>2. 당신의 닉네임을 아래 화면에 입력하면, "진짜"와 "가짜"가 분류됩니다.<br>
+           - <strong>"가짜"</strong>로 분류된 사람은, 제작자가 입력한 가짜 취미를 부여받습니다. 사람들과 교류하며, 당신의 가짜 취미를 공개해야 합니다(필수).<br>
+           - <strong>"진짜"</strong>로 분류된 사람은 본인의 취미를 얘기해 주세요.</p>
+        <p>3. 추후 구글폼에서 자신이 생각하는 "가짜" 취미를 가진 회원을 입력해 주세요.</p>
+        <p style="margin-bottom: 0;"><strong>* 총 10명입니다.</strong></p>
+    </div>
+
+    <p>닉네임을 입력하세요.</p>
+    <input type="text" id="nickname-input" placeholder="닉네임 입력" style="padding: 10px; font-size: 16px;">
+    <button onclick="startGame()" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">입장하기</button>
 </div>
 
 <div id="roleScreen" class="screen">
