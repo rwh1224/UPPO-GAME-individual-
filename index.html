@@ -8,7 +8,6 @@
     body { font-family: sans-serif; text-align: center; margin-top: 60px; background-color: #f4f7f6; }
     input, button { font-size: 18px; padding: 12px; margin: 10px; border-radius: 8px; }
     
-    /* 버튼 스타일 통합 */
     button, .link-button { 
       background-color: #007bff; color: white; border: none; cursor: pointer; transition: 0.3s;
       text-decoration: none; display: inline-block; padding: 12px 24px; font-size: 18px; border-radius: 8px;
@@ -17,34 +16,34 @@
     button:disabled { background-color: #ccc; cursor: not-allowed; }
 
     .screen { display: none; padding: 20px; }
-    #nickScreen { display: block; } 
+    #start-screen { display: block; } /* 첫 화면 표시 */
     
     .role-text { font-size: 40px; font-weight: bold; color: #e91e63; margin: 30px 0; }
     #nickError { color: red; font-weight: bold; margin-top: 10px; min-height: 1.2em; }
     
-    /* 투표 버튼은 다른 색으로 강조 */
     .vote-btn { background-color: #4CAF50; font-size: 22px; }
     .vote-btn:hover { background-color: #388E3C; }
   </style>
 </head>
 <body>
 
-<div id="start-screen" style="text-align: center; padding: 20px;">
+<div id="start-screen" class="screen">
     <h1>업무포털 신학기모임</h1>
     
     <div id="game-rules" style="text-align: left; background: #f4f4f4; padding: 20px; border-radius: 10px; margin: 20px auto; max-width: 500px; line-height: 1.6; border: 1px solid #ccc;">
         <h3 style="margin-top: 0;">&lt;게임 규칙&gt;</h3>
         <p>1. 이 게임은 주변의 사람들의 취미를 묻는 게임입니다.</p>
         <p>2. 당신의 닉네임을 아래 화면에 입력하면, "진짜"와 "가짜"가 분류됩니다.<br>
-           - <strong>"가짜"</strong>로 분류된 사람은, 제작자가 입력한 가짜 취미를 부여받습니다. 사람들과 교류하며, 당신의 가짜 취미를 공개해야 합니다.<br>
+           - <strong>"가짜"</strong>로 분류된 사람은, 제작자가 입력한 가짜 취미를 부여받습니다. <br>사람들과 교류하며, 당신의 가짜 취미를 공개해야 합니다.<br>
            - <strong>"진짜"</strong>로 분류된 사람은 본인의 취미를 얘기해 주세요.</p>
-        <p>3. 구글폼에 자신이 생각하는 "가짜" 취미를 가진 회원을 입력해 주세요.</p>
-        <p style="margin-bottom: 0;"><strong>* 가짜취미 회원은 10명입니다.</strong></p>
+        <p>3. 추후 구글폼에서 자신이 생각하는 "가짜" 취미를 가진 회원을 입력해 주세요.</p>
+        <p style="margin-bottom: 0;"><strong>* 가짜 회원은 총 10명입니다.</strong></p>
     </div>
 
     <p>닉네임을 입력하세요.</p>
-    <input type="text" id="nickname-input" placeholder="닉네임 입력" style="padding: 10px; font-size: 16px;">
-    <button onclick="startGame()" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">입장하기</button>
+    <input type="text" id="nickname-input" placeholder="닉네임 입력">
+    <button id="submitBtn" onclick="startGame()">입장하기</button>
+    <div id="nickError"></div>
 </div>
 
 <div id="roleScreen" class="screen">
@@ -65,14 +64,14 @@
 <script>
   const scriptURL = "https://script.google.com/macros/s/AKfycbxsqrir7Jc4iW9Tkto3z8Y4Smlxyi0WHpzipVrCJ7zgQUdv5vk8kRZ7XpnOy6khWuT4/exec";
 
-  // 화면 전환 함수
   function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
     document.getElementById(id).style.display = "block";
   }
 
-  function sendNickname() {
-    const nickname = document.getElementById("nickInput").value.trim();
+  // 함수 이름을 HTML의 버튼과 일치시킴
+  function startGame() {
+    const nickname = document.getElementById("nickname-input").value.trim();
     const btn = document.getElementById("submitBtn");
     const error = document.getElementById("nickError");
     
@@ -94,17 +93,17 @@
     .then(data => {
       if (data.success) {
         document.getElementById("roleResult").innerText = data.role;
-        showScreen("roleScreen"); // 이제 자동 setTimeout 없음!
+        showScreen("roleScreen");
       } else {
         error.style.color = "red";
-        error.textContent = data.error || "빈 자리가 없습니다.";
+        error.textContent = data.error || "데이터를 찾을 수 없습니다.";
         btn.disabled = false;
       }
     })
     .catch(err => {
       console.error(err);
       error.style.color = "red";
-      error.textContent = "연결 실패! 배포 설정을 확인하세요.";
+      error.textContent = "연결 실패! 구글 시트 설정을 확인하세요.";
       btn.disabled = false;
     });
   }
